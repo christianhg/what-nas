@@ -1,0 +1,16 @@
+#main {
+  margin: 2.5%;
+}
+
+table {
+  border-spacing: 0;
+  width: 100%;
+}
+
+td {
+  padding: 5px;
+}
+
+tr:nth-child(even) {
+  background: rgb(230, 230, 230);
+}
