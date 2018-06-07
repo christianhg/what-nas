@@ -188,8 +188,45 @@ const maxPrice = price =>
   )
 const compare = prop => (a, b) => R.prop(prop, a) - R.prop(prop, b)
 
+const sqr = a => a * a
+
 const createOptions = (units, drives, raidConfigs) =>
   createConfigs(units, drives, raidConfigs).map(createOption)
+
+const options = createOptions(units, drives, raidConfigs)
+
+const average = prop =>
+  R.converge(R.divide, [
+    R.compose(
+      R.sum,
+      R.map(R.prop(prop)),
+    ),
+    R.length,
+  ])
+
+const std = prop =>
+  R.compose(
+    Math.sqrt,
+    R.converge(R.divide, [R.sum, R.length]),
+    R.converge(
+      (options, average) =>
+        R.map(
+          R.compose(
+            sqr,
+            R.subtract(R.__, average),
+            R.prop(prop),
+          ),
+          options,
+        ),
+      [R.identity, average(prop)],
+    ),
+  )
+
+const isBelowStandard = (xs, prop) => value =>
+  average(prop)(xs) - std(prop)(xs) > value
+
+const isAboveStandard = (xs, prop) => value =>
+  average(prop)(xs) + std(prop)(xs) < value
 
 const numberToCurrency = n =>
   n.toLocaleString('no-NO', {
@@ -210,9 +247,39 @@ const Option = option => (
         .join(', ')}
     </td>
     <td>{option.raid}</td>
-    <td>{option.storage}TB</td>
-    <td>{numberToCurrency(option.pricePerTB)}</td>
-    <td>{numberToCurrency(option.price)}</td>
+    <td
+      className={
+        isBelowStandard(options, 'storage')(option.storage)
+          ? 'negativeOutlier'
+          : isAboveStandard(options, 'storage')(option.storage)
+            ? 'positiveOutlier'
+            : 'standard'
+      }
+    >
+      {option.storage}TB
+    </td>
+    <td
+      className={
+        isBelowStandard(options, 'pricePerTB')(option.pricePerTB)
+          ? 'positiveOutlier'
+          : isAboveStandard(options, 'pricePerTB')(option.pricePerTB)
+            ? 'negativeOutlier'
+            : 'standard'
+      }
+    >
+      {numberToCurrency(option.pricePerTB)}
+    </td>
+    <td
+      className={
+        isBelowStandard(options, 'price')(option.price)
+          ? 'positiveOutlier'
+          : isAboveStandard(options, 'price')(option.price)
+            ? 'negativeOutlier'
+            : 'standard'
+      }
+    >
+      {numberToCurrency(option.price)}
+    </td>
   </tr>
 )
 
