@@ -73,6 +73,11 @@ const units = [
     name: 'DS918+',
     price: 6190,
   },
+  {
+    bays: 5,
+    name: 'DS1517+',
+    price: 11105,
+  },
 ]
 
 const raidConfigs = [
@@ -109,6 +114,11 @@ const raidConfigs = [
   {
     name: 'SHR',
     noOfDrives: 4,
+    redundancy: 1,
+  },
+  {
+    name: 'SHR',
+    noOfDrives: 5,
     redundancy: 1,
   },
 ]
