@@ -232,11 +232,23 @@ const std = prop =>
     ),
   )
 
-const isBelowStandard = (xs, prop) => value =>
-  average(prop)(xs) - std(prop)(xs) > value
+const isBelowStandard = (value, prop) =>
+  R.converge(
+    R.compose(
+      R.gt(R.__, value),
+      R.subtract,
+    ),
+    [average(prop), std(prop)],
+  )
 
-const isAboveStandard = (xs, prop) => value =>
-  average(prop)(xs) + std(prop)(xs) < value
+const isAboveStandard = (value, prop) =>
+  R.converge(
+    R.compose(
+      R.lt(R.__, value),
+      R.add,
+    ),
+    [average(prop), std(prop)],
+  )
 
 const numberToCurrency = n =>
   n.toLocaleString('no-NO', {
@@ -259,9 +271,9 @@ const Option = option => (
     <td>{option.raid}</td>
     <td
       className={
-        isBelowStandard(options, 'storage')(option.storage)
+        isBelowStandard(option.storage, 'storage')(options)
           ? 'negativeOutlier'
-          : isAboveStandard(options, 'storage')(option.storage)
+          : isAboveStandard(option.storage, 'storage')(options)
             ? 'positiveOutlier'
             : 'standard'
       }
@@ -270,9 +282,9 @@ const Option = option => (
     </td>
     <td
       className={
-        isBelowStandard(options, 'pricePerTB')(option.pricePerTB)
+        isBelowStandard(option.pricePerTB, 'pricePerTB')(options)
           ? 'positiveOutlier'
-          : isAboveStandard(options, 'pricePerTB')(option.pricePerTB)
+          : isAboveStandard(option.pricePerTB, 'pricePerTB')(options)
             ? 'negativeOutlier'
             : 'standard'
       }
@@ -281,9 +293,9 @@ const Option = option => (
     </td>
     <td
       className={
-        isBelowStandard(options, 'price')(option.price)
+        isBelowStandard(option.price, 'price')(options)
           ? 'positiveOutlier'
-          : isAboveStandard(options, 'price')(option.price)
+          : isAboveStandard(option.price, 'price')(options)
             ? 'negativeOutlier'
             : 'standard'
       }
