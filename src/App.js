@@ -140,11 +140,9 @@ export const createConfig = (drives, raidConfigs) => unit =>
 const createConfigs = (units, drives, raidConfigs) =>
   R.flatten(units.map(createConfig(drives, raidConfigs)))
 
-const sum = R.reduce(R.add, 0)
-
 const getPrice = R.converge(R.add, [
   R.compose(
-    sum,
+    R.sum,
     R.map(R.prop('price')),
     R.prop('drives'),
   ),
@@ -155,7 +153,7 @@ const getPrice = R.converge(R.add, [
 ])
 
 const getStorage = R.compose(
-  sum,
+  R.sum,
   R.map(R.prop('storage')),
   R.converge(R.take, [
     R.converge(R.subtract, [
